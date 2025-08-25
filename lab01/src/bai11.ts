@@ -1,10 +1,10 @@
-class Animal{
+export class Animal{
     name:string;
     constructor(name:string){
         this.name=name
     }
 }
-class Dog extends Animal{
+export class Dog extends Animal{
     constructor(name:string){
         super(name);
     }
@@ -13,7 +13,7 @@ class Dog extends Animal{
         
     }
 }
-class Cat extends Animal{
+export class Cat extends Animal{
     constructor(name:string){
         super(name);
     }
