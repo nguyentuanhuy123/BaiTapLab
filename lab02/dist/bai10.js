@@ -5,6 +5,4 @@ var getNumber10 = new Promise(function (resolve) {
     }, 1000);
 });
 getNumber10.then(mes => console.log(mes))
-    .finally(() => {
-    console.log("Done");
-});
+    .finally(() => { console.log("Done"); });
