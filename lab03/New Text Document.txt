@@ -1,0 +1,48 @@
+import { Text, SafeAreaView, StyleSheet,View,Image,TouchableOpacity,TextInput } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialIcons } from '@expo/vector-icons'; 
+// You can import supported modules from npm
+import { Card } from 'react-native-paper';
+
+// or any files within the Snack
+import AssetExample from './components/AssetExample';
+
+export default function App() {
+  return (
+    <LinearGradient style={styles.container} colors={['#c9f4f6','#ffff', '#4ad9f7']}>
+      <View style={{flex:2,justifyContent:'center',alignItems:'center'}}>
+        <Text style={{fontSize:'50px',textAlign:'center',fontWeight:'bold'}}>CODE</Text>
+      </View>
+      <View style={{flex:2,justifyContent:'center',alignItems:'center'}}>
+        <Text style={{fontSize:'20px',textAlign:'center',fontWeight:'bold'}}>VERIFICATION</Text>
+      </View>
+      <View style={{flex:2,justifyContent:'center',alignItems:'center'}}>
+        <Text style={{fontSize:'15px',textAlign:'center',fontWeight:'bold'}}>Enter ontime password sent on {'\n'} ++ 849092605798</Text>
+      </View>
+      <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'row'}}>
+        <TextInput style={{borderColor:'black',borderWidth:1,width:50,height:50}}></TextInput>
+        <TextInput style={{borderColor:'black',borderWidth:1,width:50,height:50}}></TextInput>
+        <TextInput style={{borderColor:'black',borderWidth:1,width:50,height:50}}></TextInput>
+        <TextInput style={{borderColor:'black',borderWidth:1,width:50,height:50}}></TextInput>
+        <TextInput style={{borderColor:'black',borderWidth:1,width:50,height:50}}></TextInput>
+        <TextInput style={{borderColor:'black',borderWidth:1,width:50,height:50}}></TextInput>
+      </View>
+      <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'row',margin:30}}>
+        <TouchableOpacity style={{flex:1,backgroundColor:'yellow',borderRadius:10,width:100,height:50,fontSize:'20px',justifyContent:'center',alignItems:'center',fontWeight:'bold'}}>VERIFY CODE</TouchableOpacity>
+      </View>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#00ccf9',
+    padding: 8,
+  },
+  logo: {
+    height: 128,
+    width: 128,
+  }
+});
