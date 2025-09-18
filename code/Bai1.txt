@@ -1,0 +1,115 @@
+import { StyleSheet, Text, View,FlatList,Image,Pressable } from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+
+// You can import supported modules from npm
+import { Card } from 'react-native-paper';
+
+// or any files within the Snack
+import AssetExample from './components/AssetExample';
+type ItemData = {
+  id:number;
+  name: string;
+  shop: string;
+  img: number;
+};
+const DATA: ItemData[] = [
+  {
+    id:1,name:"Ca nấu lẩu, nấu mì mini...",shop:"Devang",img:require('./assets/ca_nau_lau.png')
+  },
+  {
+    id:2,name:"1 KG KHÔ GÀ BƠ TỎI ...",shop:"LTD Food",img:require('./assets/ga_bo_toi.png')
+  },
+  {
+    id:3,name:"Xe cần cẩu đa năng",shop:"Thế giới đồ chơi",img:require('./assets/xa_can_cau.png')
+  },
+  {
+    id:4,name:"Đồ chơi dạng mô hình",shop:"Thế giới đồ chơi",img:require('./assets/do_choi_dang_mo_hinh.png')
+  },
+  {
+    id:5,name:"Lãnh đạo đơn giản",shop:"Minh Long Book",img:require('./assets/lanh_dao_gian_don.png')
+  },
+  {
+    id:6,name:"Hiếu lòng con trẻ",shop:"Minh Long Book",img:require('./assets/hieu_long_con_tre.png')
+  },
+]
+type ItemProps = {item:ItemData};
+const Item=({item})=>(
+  <View style={styles.item}>
+    <View style={{flex:2}}>
+      <Image style={{height:50,width:50}} source={item.img} />
+    </View>
+    <View style={{flex:6}}>
+      <Text style={{fontWeight:'bold',fontSize:13}}>{item.name}</Text>
+      <Text style={{marginTop:20,color:'grey'}}>Shop <Text style={{color:'black',}}>{item.shop}</Text></Text>
+    </View>
+    <View style={{flex:3,justifyContent:'center',alignItems:'center'}}>
+      <Pressable style={styles.bt}><Text style={{color:'white'}}>Chat</Text></Pressable>
+    </View> 
+  </View>
+)
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/ant-design_arrow-left-outlined.png')} /></Pressable>
+          
+          <Text>Chat</Text>
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/bi_cart-check.png')} /></Pressable>
+          
+        </View>
+        <p>Bạn có thắc mắc với sản phẩm vừa xem. Đừng ngại chat với shop!</p>
+        <FlatList
+        data={DATA}
+        renderItem={({item})=><Item item={item}/>}
+        keyExtractor={item=>item.id}>
+        </FlatList>
+      </SafeAreaView>
+      <View style={styles.header}>
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/Group10.png')} /></Pressable>
+          
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/Vector(Stroke).png')} /></Pressable>
+          
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/Vector1(Stroke).png')} /></Pressable>
+          
+        </View>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  item:{
+    padding:5,
+    borderTopWidth:1,
+    borderBottomWidth:1,
+    borderColor:'grey',
+    backgroundColor:'#e5e5e5',
+    flexDirection:'row',
+  },
+  bt:{
+    backgroundColor:'red',
+    height:35,
+    width:80,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+  header:{
+    height: 50,
+    backgroundColor: '#61dafb',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  }
+});

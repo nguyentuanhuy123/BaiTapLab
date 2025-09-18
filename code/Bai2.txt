@@ -1,0 +1,115 @@
+import { StyleSheet, Text, View,FlatList,Image,Pressable } from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+
+// You can import supported modules from npm
+import { Card } from 'react-native-paper';
+
+// or any files within the Snack
+import AssetExample from './components/AssetExample';
+type ItemData = {
+  id:number;
+  name: string;
+  shop: string;
+  img: number;
+  price:number;
+  giamgia:number;
+};
+const DATA: ItemData[] = [
+  {
+    id:1,name:"Cáp chuyenern từ Cổng USB sang PS2",shop:"Devang",img:require('./assets/carbusbtops21.png'),price:60000,giamgia:39
+  },
+  {
+    id:2,name:"Cáp chuyển từ Cổng USB sang PS2...",shop:"LTD Food",img:require('./assets/daucam11.png'),price:60000,giamgia:39
+  },
+  {
+    id:3,name:"Cáp chuyển từ Cổng USB sang PS2...",shop:"Thế giới đồ chơi",img:require('./assets/dauchuyendoi1.png'),price:60000,giamgia:39
+  },
+  {
+    id:4,name:"Cáp chuyển từ Cổng USB sang PS2...",shop:"Thế giới đồ chơi",img:require('./assets/dauchuyendoipsps21.png'),price:60000,giamgia:39
+  },
+  {
+    id:5,name:"Cáp chuyển từ Cổng USB sang PS2...",shop:"Minh Long Book",img:require('./assets/daynguon1.png'),price:60000,giamgia:39
+  },
+  {
+    id:6,name:"Cáp chuyển từ Cổng USB sang PS2...",shop:"Minh Long Book",img:require('./assets/daucam11.png'),price:60000,giamgia:39
+  },
+]
+type ItemProps = {item:ItemData};
+const Item=({item})=>(
+  <View style={styles.item}>
+    <View style={{}}>
+      <Image style={{height:100,width:'100%',objectFit:'contain'}} source={item.img} />
+    </View>
+    <View style={{marginTop:10,}}>
+      <Text style={{fontWeight:'bold',fontSize:13}}>{item.name}</Text>
+    </View>
+    <Image style={{height:25,width:'100%',resizeMode: 'contain',marginTop:10,marginBottom:10}} source={require('./assets/Group4.png')} />
+    <View style={{flexDirection:'row'}}>
+      <Text style={{fontWeight:'bold'}}>{item.price}đ</Text>
+      <Text style={{marginLeft:30,color:'grey'}}>-{item.giamgia}%</Text>
+    </View> 
+  </View>
+)
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/ant-design_arrow-left-outlined.png')} /></Pressable>
+          
+          <Text>Chat</Text>
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/bi_cart-check.png')} /></Pressable>
+          
+        </View>
+        <FlatList
+        data={DATA}
+        renderItem={({item})=><Item item={item}/>}
+        keyExtractor={item=>item.id}
+        numColumns={2}>
+        </FlatList>
+      </SafeAreaView>
+      <View style={styles.header}>
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/Group10.png')} /></Pressable>
+          
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/Vector(Stroke).png')} /></Pressable>
+          
+          <Pressable><Image style={{height:25,width:25}} source={require('./assets/Vector1(Stroke).png')} /></Pressable>
+          
+        </View>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  item:{
+    padding:5,
+    flexDirection:'column',
+    width:'50%'
+  },
+  bt:{
+    backgroundColor:'red',
+    height:35,
+    width:80,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+  header:{
+    height: 50,
+    backgroundColor: '#61dafb',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  }
+});
