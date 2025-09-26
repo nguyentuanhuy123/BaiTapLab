@@ -1,0 +1,146 @@
+import { StyleSheet, Text, View,FlatList ,TextInput,Pressable,Image} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+
+// You can import supported modules from npm
+import { Card } from 'react-native-paper';
+
+// or any files within the Snack
+import AssetExample from './components/AssetExample';
+function Home(){
+  const DATA = [
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      title: 'First Item',
+    },
+    {
+      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+      title: 'Second Item',
+    },
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e29d72',
+      title: 'Third Item',
+    },
+  ];
+  type ItiemProps={title:string};
+  const Item=({title}:ItiemProps)=>(
+    <View style={styles.item}>
+      <Text style={{fontSize:32,color:'black'}}>{title}</Text>
+    </View>
+  )
+  return(
+    <View style={styles.container}> 
+      <Text>Home</Text>
+      <FlatList
+      data={DATA}
+      renderItem={({item})=><Item title={item.title}/>}></FlatList>
+    </View>
+  )
+}
+function Search(){
+  return(
+    <View style={styles.container}> 
+      <Text>Search</Text>
+      <TextInput style={styles.input} placeholder="nhap tu khoa"></TextInput>
+    </View>
+  )
+}
+function Profile(){
+  return(
+    <View style={styles.container}> 
+      <View style={{ alignItems: 'center' }}>
+        <View style={styles.avatarWrapper}>
+          <Ionicons name="person-circle-outline" size={120} color="#007AFF" />
+        </View>
+        <Text style={styles.name}>Nguyễn Văn A</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Ionicons name="mail-outline" size={20} color="#555" style={{ marginRight: 8 }} />
+        <Text style={styles.email}>nguyenvana@example.com</Text>
+      </View>
+
+    </View>
+  )
+}
+const BottomTap=createBottomTabNavigator()
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <NavigationContainer>
+          <BottomTap.Navigator
+            screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              if (route.name === 'Home') {
+                iconName = focused ? 'home' : 'home-outline';
+              } else if (route.name === 'Search') {
+                iconName = focused ? 'search' : 'search-outline';
+              } else if (route.name === 'Profile') {
+                iconName = focused ? 'person' : 'person-outline';
+              }
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: 'tomato',
+            tabBarInactiveTintColor: 'gray',
+          })}>
+            <BottomTap.Screen name="Home" component={Home}/>
+            <BottomTap.Screen name="Search" component={Search}/>
+            <BottomTap.Screen name="Profile" component={Profile}/>
+          </BottomTap.Navigator>
+        </NavigationContainer>
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  },
+  avatarWrapper: {
+    marginBottom: 12,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent:'center',
+    marginBottom: 24,
+  },
+  email: {
+    fontSize: 16,
+    color: '#666',
+  },
+});

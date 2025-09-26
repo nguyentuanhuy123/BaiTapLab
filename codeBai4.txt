@@ -1,0 +1,168 @@
+import React, { createContext, useContext, useState } from 'react';
+import { View, Text, FlatList, Pressable, StyleSheet, Button } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+const PRODUCTS = [
+  { id: '1', name: 'Áo thun', price: 150000 },
+  { id: '2', name: 'Quần jean', price: 300000 },
+  { id: '3', name: 'Giày thể thao', price: 750000 },
+];
+const FavoritesContext = createContext();
+function useFavorites() {
+  return useContext(FavoritesContext);
+}
+
+function FavoritesProvider({ children }) {
+  const [favorites, setFavorites] = useState([]);
+
+  function toggleFavorite(productId) {
+    setFavorites(prev =>
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
+  }
+
+  return (
+    <FavoritesContext.Provider value={{ favorites, toggleFavorite }}>
+      {children}
+    </FavoritesContext.Provider>
+  );
+}
+function ProductsScreen({ navigation }) {
+  const renderItem = ({ item }) => (
+    <Pressable
+      style={styles.item}
+      onPress={() => navigation.navigate('ProductDetails', { id: item.id })}
+    >
+      <Text style={styles.title}>{item.name}</Text>
+      <Text>{item.price.toLocaleString()} VND</Text>
+    </Pressable>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={PRODUCTS}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+      />
+    </View>
+  );
+}
+function FavoritesScreen({ navigation }) {
+  const { favorites } = useFavorites();
+  const data = PRODUCTS.filter(p => favorites.includes(p.id));
+
+  if (data.length === 0) {
+    return (
+      <View style={styles.containerCenter}>
+        <Text>Chưa có sản phẩm yêu thích.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <Pressable
+            style={styles.item}
+            onPress={() => navigation.navigate('ProductDetails', { id: item.id })}
+          >
+            <Text style={styles.title}>{item.name}</Text>
+            <Text>{item.price.toLocaleString()} VND</Text>
+          </Pressable>
+        )}
+      />
+    </View>
+  );
+}
+function ProductDetailsScreen({ route }) {
+  const { id } = route.params || {};
+  const product = PRODUCTS.find(p => p.id === id);
+  const { favorites, toggleFavorite } = useFavorites();
+  const isFav = favorites.includes(id);
+
+  if (!product) {
+    return (
+      <View style={styles.containerCenter}>
+        <Text>Sản phẩm không tồn tại.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{product.name}</Text>
+      <Text>Giá: {product.price.toLocaleString()} VND</Text>
+      <View style={{ height: 12 }} />
+      <Button
+        title={isFav ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'}
+        onPress={() => toggleFavorite(id)}
+      />
+    </View>
+  );
+}
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+function HomeTabs() {
+  return (
+    <Tab.Navigator
+    screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              if (route.name === 'Products') {
+                iconName = focused ? 'home' : 'home-outline';
+              } else if (route.name === 'Favorites') {
+                iconName = focused ? 'heart' : 'heart-outline';
+              }
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: 'tomato',
+            tabBarInactiveTintColor: 'gray',
+          })}>
+      <Tab.Screen name="Products" component={ProductsScreen} />
+      <Tab.Screen name="Favorites" component={FavoritesScreen} />
+    </Tab.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <FavoritesProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+          <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} options={{ title: 'Chi tiết sản phẩm' }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </FavoritesProvider>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 12,
+  },
+  containerCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  item: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

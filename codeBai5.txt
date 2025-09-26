@@ -1,0 +1,191 @@
+import { StyleSheet, Text, View,FlatList ,TextInput,Pressable,Image,Switch} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
+import {useState} from "react"
+
+// You can import supported modules from npm
+import { Card } from 'react-native-paper';
+
+// or any files within the Snack
+import AssetExample from './components/AssetExample';
+function Home(){
+  const DATA = [
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      title: 'First Item',
+    },
+    {
+      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+      title: 'Second Item',
+    },
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e29d72',
+      title: 'Third Item',
+    },
+  ];
+  type ItiemProps={title:string};
+  const Item=({title}:ItiemProps)=>(
+    <View style={styles.item}>
+      <Text style={{fontSize:32,color:'black'}}>{title}</Text>
+    </View>
+  )
+  return(
+    <View style={styles.container}> 
+      <Text>Home</Text>
+      <FlatList
+      data={DATA}
+      renderItem={({item})=><Item title={item.title}/>}></FlatList>
+    </View>
+  )
+}
+function Setting(){
+  const [isEnabled1, setIsEnabled1] = useState(false);
+  const [isEnabled2, setIsEnabled2] = useState(true);
+
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.item}>
+      <Text >Bật thông báo</Text>
+      <Switch
+      value={isEnabled1}
+      onValueChange={(v) => setIsEnabled1(v)}
+      />
+      </View>
+      <View style={styles.item}>
+      <Text >Chế độ tối</Text>
+      <Switch
+      value={isEnabled2}
+      onValueChange={(v) => setIsEnabled2(v)}
+      />
+      </View>
+    </SafeAreaView>
+  );
+}
+function Profile(){
+  return(
+    <View style={styles.container}> 
+      <View style={{ alignItems: 'center' }}>
+        <View style={styles.avatarWrapper}>
+          <Ionicons name="person-circle-outline" size={120} color="#007AFF" />
+        </View>
+        <Text style={styles.name}>Nguyễn Văn A</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Ionicons name="mail-outline" size={20} color="#555" style={{ marginRight: 8 }} />
+        <Text style={styles.email}>nguyenvana@example.com</Text>
+      </View>
+
+    </View>
+  )
+}
+function CustomDrawerContent(props) {
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem
+        label="Logout"
+        icon={({ color, size }) => <Ionicons name="log-out-outline" size={size} color={color} />}
+        onPress={() => alert('Logged out!')}
+      />
+    </DrawerContentScrollView>
+  );
+}
+const Drawer = createDrawerNavigator();
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <NavigationContainer>
+          <Drawer.Navigator
+            drawerContent={(props) => <CustomDrawerContent {...props} />}
+            screenOptions={{
+              drawerActiveTintColor: 'tomato',
+              drawerInactiveTintColor: 'gray',
+              headerStyle: { backgroundColor: '#f5f5f5' },
+              headerTintColor: '#333',
+            }}
+          >
+            <Drawer.Screen
+              name="Home"
+              component={Home}
+              options={{
+                drawerIcon: ({ color, size }) => (
+                  <Ionicons name="apps-outline" size={size} color={color} />
+                ),
+              }}
+            />
+            <Drawer.Screen
+              name="Settings"
+              component={Setting}
+              options={{
+                drawerIcon: ({ color, size }) => (
+                  <Ionicons name="settings-outline" size={size} color={color} />
+                ),
+              }}
+            />
+          </Drawer.Navigator>
+        </NavigationContainer>
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
+  paragraph: {
+    margin: 24,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  item: {
+    backgroundColor: '#fff',
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, 
+    flexDirection:'row',
+    justifyContent:'space-between',
+  },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  },
+  avatarWrapper: {
+    marginBottom: 12,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent:'center',
+    marginBottom: 24,
+  },
+  email: {
+    fontSize: 16,
+    color: '#666',
+  }
+});
