@@ -59,7 +59,7 @@ export default function InvoiceScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🧾 Hoá đơn mua hàng</Text>
+      <Text style={styles.title}>Hoá đơn mua hàng</Text>
       <Text style={styles.date}>Ngày: {new Date().toLocaleString()}</Text>
 
       <FlatList
