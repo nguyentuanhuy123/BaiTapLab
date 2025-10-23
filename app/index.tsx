@@ -47,6 +47,7 @@ export default function ProductsScreen() {
       <View>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.price}>{item.price.toLocaleString()} đ</Text>
+        <Text style={styles.price}>Số lượng: {item.stock.toLocaleString()}</Text>
       </View>
 
       <Pressable
