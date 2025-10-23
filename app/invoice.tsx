@@ -1,47 +1,77 @@
-import { View, Text, FlatList ,StyleSheet} from 'react-native';
-import { useEffect, useState } from 'react';
-import { db } from '../src/db/database';
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  StyleSheet, 
+  Pressable, 
+  Alert 
+} from "react-native";
+import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { getInvoiceItems } from "../src/db/cart.repo";
+import { checkout } from "../src/db/order.repo";
 
 interface InvoiceItem {
+  product_id: string;
   name: string;
   price: number;
-  quantity: number;
+  qty: number;
 }
 
 export default function InvoiceScreen() {
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [total, setTotal] = useState<number>(0);
 
-  useEffect(() => {
-    const result = db.getAllSync(`
-      SELECT products.name, products.price, cart.quantity
-      FROM cart
-      JOIN products ON cart.product_id = products.id
-    `) as InvoiceItem[];
-
+  const loadInvoice = () => {
+    const result = getInvoiceItems();
     setItems(result);
-
-    const sum = result.reduce((acc, it) => acc + it.price * it.quantity, 0);
+    const sum = result.reduce((acc, it) => acc + it.price * it.qty, 0);
     setTotal(sum);
+  };
+
+  useEffect(() => {
+    loadInvoice();
   }, []);
 
   const vat = total * 0.1;
 
+  const handleCheckout = () => {
+    try {
+      const result = checkout();
+      Alert.alert(
+        "Thanh toán thành công",
+        `Mã đơn hàng: ${result.orderId}\nTổng tiền: ${result.total.toLocaleString()} đ`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              setItems([]);
+              setTotal(0);
+              router.push("/");
+            },
+          },
+        ]
+      );
+    } catch (err: any) {
+      Alert.alert(err.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hoá đơn mua hàng</Text>
+      <Text style={styles.title}>🧾 Hoá đơn mua hàng</Text>
       <Text style={styles.date}>Ngày: {new Date().toLocaleString()}</Text>
-  
+
       <FlatList
         data={items}
-        keyExtractor={(_, idx) => idx.toString()}
+        keyExtractor={(item) => item.product_id}
         renderItem={({ item }) => (
           <Text style={styles.itemText}>
-            {item.name} x {item.quantity} = {item.price * item.quantity} đ
+            {item.name} x {item.qty} = {(item.price * item.qty).toLocaleString()} đ
           </Text>
         )}
       />
-  
+
       <View style={styles.summary}>
         <Text style={styles.summaryText}>Tổng: {total.toLocaleString()} đ</Text>
         <Text style={styles.summaryText}>VAT (10%): {vat.toLocaleString()} đ</Text>
@@ -49,35 +79,61 @@ export default function InvoiceScreen() {
           Thành tiền: {(total + vat).toLocaleString()} đ
         </Text>
       </View>
+
+      <Pressable
+        onPress={handleCheckout}
+        style={({ pressed }) => [
+          styles.payButton,
+          pressed && { opacity: 0.8 },
+        ]}
+      >
+        <Text style={styles.payButtonText}>Thanh toán</Text>
+      </Pressable>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
+  container: { 
     flex: 1,
-    padding: 16,
+     padding: 16 
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  title: { 
+    fontSize: 18, 
+    fontWeight: "bold", 
+    marginBottom: 8 
   },
-  date: {
-    marginBottom: 8,
+  date: { 
+    marginBottom: 8, 
+    color: "#555" 
   },
-  itemText: {
-    marginVertical: 4,
-    fontSize: 16,
+  itemText: { 
+    marginVertical: 4, 
+    fontSize: 16 
   },
   summary: {
     marginTop: 16,
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+    paddingTop: 8,
   },
-  summaryText: {
-    fontSize: 16,
+  summaryText: { 
+    fontSize: 16 
   },
-  totalText: {
-    fontWeight: 'bold',
-    marginTop: 4,
-    fontSize: 16,
+  totalText: { 
+    fontWeight: "bold", 
+    marginTop: 4, 
+    fontSize: 16 
   },
+  payButton: {
+    marginTop: 16,
+    backgroundColor: "#1976D2",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  payButtonText: { 
+    color: "#fff", 
+    fontSize: 16, 
+    fontWeight: "bold" },
 });

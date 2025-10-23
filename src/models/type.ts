@@ -1,13 +1,18 @@
 export interface Product {
-    id: number;
-    name: string;
-    price: number;
-    stock: number;
-  }
-  
-  export interface CartItem {
-    id: number;
-    product_id: number;
-    quantity: number;
-  }
-  
+  product_id: string;
+  name: string;
+  price: number;
+  stock: number;
+}
+
+export interface CartItem {
+  id: number;
+  product_id: string;
+  qty: number;
+}
+interface InvoiceItem {
+  product_id: string;
+  name: string;
+  price: number;
+  qty: number;
+}

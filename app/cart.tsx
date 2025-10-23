@@ -1,116 +1,103 @@
-import { View, Text, Button, FlatList ,Pressable,ListRenderItemInfo} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
-import { db } from '../src/db/database';
-type CartItem = {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-};
-type Props = {
-  cart: CartItem[];
-  updateQty: (id: number, delta: number) => void;
-  deleteItem: (id: number) => void;
-  router: { push: (path: string) => void };
-};
+import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { useState, useEffect } from "react";
+import { getCartItems, updateCartQty, deleteCartItem, CartDisplay } from "../src/db/cart.repo";
+
 export default function CartScreen() {
   const router = useRouter();
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<CartDisplay[]>([]);
 
-  const loadCart = () => {
-    const result = db.getAllSync(`
-      SELECT cart.id, products.name, products.price, cart.quantity
-      FROM cart
-      JOIN products ON cart.product_id = products.id
-    `);
-    setCart(result);
-  };
+  const loadCart = () => setCart(getCartItems());
 
-  useEffect(loadCart, []);
+  useEffect(() => {
+    loadCart();
+  }, []);
 
-  const updateQty = (id: number, delta: number) => {
-    db.runSync('UPDATE cart SET quantity = quantity + ? WHERE id = ?', [delta, id]);
-    db.runSync('DELETE FROM cart WHERE quantity <= 0');
+  const handleUpdateQty = (id: number, delta: number) => {
+    updateCartQty(id, delta);
     loadCart();
   };
 
-  const deleteItem = (id: number) => {
-    db.runSync('DELETE FROM cart WHERE id = ?', [id]);
+  const handleDeleteItem = (id: number) => {
+    deleteCartItem(id);
     loadCart();
   };
-  const renderItem = ({ item }: ListRenderItemInfo<CartItem>) => (
-    <View style={{ marginBottom: 12 }}>
-      <Text>{item.name}</Text>
-      <Text>{item.price} đ x {item.stock}</Text>
 
-      <Pressable
-        onPress={() => updateQty(item.id, 1)}
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? '#ddd' : '#0a84ff',
-            padding: 8,
-            marginVertical: 4,
-            borderRadius: 4,
-          },
-        ]}
-      >
-        <Text style={{ color: 'white', textAlign: 'center' }}>+</Text>
-      </Pressable>
-
-      <Pressable
-        onPress={() => updateQty(item.id, -1)}
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? '#ddd' : '#0a84ff',
-            padding: 8,
-            marginVertical: 4,
-            borderRadius: 4,
-          },
-        ]}
-      >
-        <Text style={{ color: 'white', textAlign: 'center' }}>-</Text>
-      </Pressable>
-
-      <Pressable
-        onPress={() => deleteItem(item.id)}
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? '#ddd' : '#ff3b30',
-            padding: 8,
-            marginVertical: 4,
-            borderRadius: 4,
-          },
-        ]}
-      >
-        <Text style={{ color: 'white', textAlign: 'center' }}>Xóa</Text>
-      </Pressable>
+  const renderItem = ({ item }: { item: CartDisplay }) => {
+    const isMax = item.qty >= item.stock;
+    const isMin= item.qty <= 1;
+    return(
+    
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemName}>{item.name}</Text>
+      <Text style={styles.itemPrice}>
+        {item.price.toLocaleString()} đ x {item.qty}
+      </Text>
+      <View style={styles.actionRow}>
+        <Pressable
+            onPress={() => !isMax && handleUpdateQty(item.id, 1)}
+            style={[
+              styles.btn,
+              isMax && styles.btnDisabled,
+            ]}
+            disabled={isMax}
+          >
+          <Text style={styles.btnText}>+</Text>
+        </Pressable>
+        <Pressable
+            onPress={() => !isMin && handleUpdateQty(item.id, -1)}
+            style={[
+              styles.btn,
+              isMin && styles.btnDisabled,
+            ]}
+            disabled={isMax}
+          >
+          <Text style={styles.btnText}>-</Text>
+        </Pressable>
+        <Pressable onPress={() => handleDeleteItem(item.id)} style={styles.deleteBtn}>
+          <Text style={styles.btnText}>🗑 Xóa</Text>
+        </Pressable>
+      </View>
     </View>
-  );
+  );}
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <FlatList
         data={cart}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
+        ListEmptyComponent={<Text>Giỏ hàng trống</Text>}
       />
-  
-      <Pressable
-        onPress={() => router.push('/invoice')}
-        style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? '#ddd' : '#34c759',
-            padding: 12,
-            borderRadius: 6,
-            marginTop: 16,
-          },
-        ]}
-      >
-        <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
-          Xem hoá đơn
-        </Text>
+      <Pressable onPress={() => router.push("/invoice")} style={styles.checkoutBtn}>
+        <Text style={styles.checkoutText}>Xem hoá đơn</Text>
       </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    marginBottom: 12,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    padding: 10,
+  },
+  itemName: { fontWeight: "bold", fontSize: 16 },
+  itemPrice: { marginVertical: 4 },
+  actionRow: { flexDirection: "row", gap: 8 },
+  btn: { backgroundColor: "#0a84ff", padding: 8, borderRadius: 6 },
+  deleteBtn: { backgroundColor: "#ff3b30", padding: 8, borderRadius: 6 },
+  btnText: { color: "#fff", fontWeight: "bold" },
+  checkoutBtn: {
+    backgroundColor: "#1976D2",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  checkoutText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  btnDisabled: {
+    backgroundColor: "#ccc",
+  },
+});
