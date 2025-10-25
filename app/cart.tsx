@@ -50,7 +50,7 @@ export default function CartScreen() {
               styles.btn,
               isMin && styles.btnDisabled,
             ]}
-            disabled={isMax}
+            disabled={isMin}
           >
           <Text style={styles.btnText}>-</Text>
         </Pressable>

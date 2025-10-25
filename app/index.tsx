@@ -1,25 +1,29 @@
-import { View, Text, FlatList, Pressable, StyleSheet, TextInput } from "react-native";
-import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import { View, Text, FlatList, Pressable, StyleSheet, TextInput, Animated } from "react-native";
+import { useRouter,useFocusEffect } from "expo-router";
+import { useState, useEffect,useCallback } from "react";
 import { getAllProducts } from "../src/db/product.repo";
 import { addToCart } from "../src/db/cart.repo";
 import { Product } from "../src/models/type";
+
 
 export default function ProductsScreen() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [message, setMessage] = useState<{ text: string; color: string } | null>(null);
 
   const loadProducts = () => {
     const result = getAllProducts();
     setProducts(result);
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      loadProducts();
+    }, [])
+  );
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -27,48 +31,67 @@ export default function ProductsScreen() {
     setRefreshing(false);
   };
 
+  const showMessage = (text: string, color: string = "green") => {
+    setMessage({ text, color });
+    setTimeout(() => setMessage(null), 2000);
+  };
+
+
   const handleAddToCart = (product: Product) => {
     if (product.stock <= 0) {
-      alert("Sản phẩm đã hết hàng!");
+      showMessage("Sản phẩm đã hết hàng!", "red");
       return;
     }
     addToCart(product.product_id);
-    onRefresh();
-    alert("Đã thêm vào giỏ hàng");
+    setProducts((prevProducts) =>
+      prevProducts.map((p) =>
+        p.product_id === product.product_id
+          ? { ...p, stock: p.stock - 1 }
+          : p
+      )
+    );
+    showMessage("Đã thêm vào giỏ hàng!", "green");
   };
+
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
   const renderItem = ({ item }: { item: Product }) => (
-  <View style={styles.itemContainer}>
-    <View style={styles.row}>
-      <View>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.price}>{item.price.toLocaleString()} đ</Text>
-        <Text style={styles.price}>Số lượng: {item.stock.toLocaleString()}</Text>
+    <View style={styles.itemContainer}>
+      <View style={styles.row}>
+        <View>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.price}>{item.price.toLocaleString()} đ</Text>
+          <Text style={styles.price}>Số lượng: {item.stock.toLocaleString()}</Text>
+        </View>
+
+        <Pressable
+          onPress={() => handleAddToCart(item)}
+          style={({ pressed }) => [
+            styles.addButton,
+            pressed && styles.addButtonPressed,
+          ]}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </Pressable>
       </View>
-
-      <Pressable
-        onPress={() => handleAddToCart(item)}
-        style={({ pressed }) => [
-          styles.addButton,
-          pressed && styles.addButtonPressed,
-        ]}
-      >
-        <Text style={styles.addButtonText}>+</Text>
-      </Pressable>
     </View>
-  </View>
-);
-
+  );
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
+      {message && (
+        <View style={[styles.toast, { backgroundColor: message.color }]}>
+          <Text style={styles.toastText}>{message.text}</Text>
+        </View>
+      )}
+
+
       <TextInput
         style={styles.searchInput}
-        placeholder="🔍 Tìm kiếm sản phẩm theo tên..."
+        placeholder="🔍 Tìm kiếm sản phẩm theo tên"
         value={searchText}
         onChangeText={setSearchText}
         clearButtonMode="while-editing"
@@ -153,5 +176,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 42,
     marginBottom: 10,
+  },
+  toast: {
+    position: "absolute",
+    top: 40,
+    alignSelf: "center",
+    backgroundColor: "green",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    zIndex: 10,
+  },
+  toastText: {
+    color: "#fff",
+    fontSize: 14,
   },
 });
